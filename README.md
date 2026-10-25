@@ -8,6 +8,8 @@ Smart Dual Clicker is a lightweight, cross-platform automation tool built with P
 
 ## Features
 * **Conditional Logic:** Executes a primary trigger click, evaluates the pixel color at Point 2, and executes a secondary click/double-click when matching either target color.
+* **Batch Limit & Nearest-to-Point-1 Prioritization:** Configure `Max Orders / Batch` (e.g. `1`, `3`, `5`, or `0` for unlimited). When multiple matching orders appear in the area, the clicker calculates the Euclidean distance to Point 1 and prioritizes clicking the **$N$ closest orders** first.
+* **Point 2 Area Selection:** Choose between targeting an exact coordinate or clicking **"📐 Select Area"** to drag-select an entire screen zone (e.g. table rows or list area). When a color match is detected anywhere inside the area, it clicks the exact matched coordinate.
 * **Double-Click Option:** Supports automated double-clicking on Point 2 (configurable with a checkbox, enabled by default) for applications like 1C:Enterprise where opening an item requires a double-click.
 * **Dual Eyedroppers:** Two independent eyedroppers allowing you to match multiple colors (e.g., Color 1 for pink unselected row, and Color 2 for blue selected row).
 * **Color Tolerance:** Performs color matching within a tolerance threshold to handle UI focus gradients and anti-aliasing variations smoothly.

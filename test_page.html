@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dark-Clicker Glassmorphism Test Bench</title>
+  <title>Dark-Clicker Test Bench</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
       --bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
-      --glass-card: rgba(30, 41, 59, 0.65);
+      --glass-card: rgba(30, 41, 59, 0.7);
       --glass-border: rgba(255, 255, 255, 0.12);
       --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45);
       --text: #f8fafc;
@@ -16,18 +16,18 @@
       --pink-order: #FFB6C1;
       --blue-selected: #A5C8EE;
       --green-done: #86efac;
-      --panel-bg: rgba(15, 23, 42, 0.5);
+      --panel-bg: rgba(15, 23, 42, 0.55);
     }
 
     [data-theme="light"] {
       --bg: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #fce7f3 100%);
-      --glass-card: rgba(255, 255, 255, 0.75);
+      --glass-card: rgba(255, 255, 255, 0.8);
       --glass-border: rgba(255, 255, 255, 0.6);
       --glass-shadow: 0 16px 40px 0 rgba(100, 116, 139, 0.15);
       --text: #0f172a;
       --text-muted: #64748b;
       --accent: #0284c7;
-      --panel-bg: rgba(255, 255, 255, 0.6);
+      --panel-bg: rgba(255, 255, 255, 0.65);
     }
 
     * {
@@ -35,7 +35,7 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
     }
 
     body {
@@ -44,12 +44,12 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       padding: 30px 15px;
     }
 
     .glass-container {
-      max-width: 860px;
+      max-width: 920px;
       width: 100%;
       background: var(--glass-card);
       backdrop-filter: blur(16px);
@@ -57,7 +57,7 @@
       border: 1px solid var(--glass-border);
       border-radius: 24px;
       box-shadow: var(--glass-shadow);
-      padding: 32px;
+      padding: 26px 30px;
       position: relative;
     }
 
@@ -65,17 +65,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .title-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      margin-bottom: 16px;
     }
 
     h1 {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.5px;
     }
@@ -84,101 +78,137 @@
       background: var(--panel-bg);
       border: 1px solid var(--glass-border);
       color: var(--text);
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 9999px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
       backdrop-filter: blur(8px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .theme-toggle-btn:hover {
       transform: translateY(-1px);
     }
 
-    .instructions-card {
-      background: var(--panel-bg);
-      border: 1px solid var(--glass-border);
-      border-left: 4px solid var(--accent);
-      border-radius: 14px;
-      padding: 16px 20px;
-      font-size: 13.5px;
-      line-height: 1.6;
-      margin-bottom: 28px;
-    }
-
-    .instructions-card strong {
-      color: var(--accent);
-    }
-
-    .grid-panels {
-      display: grid;
-      grid-template-columns: 1fr 1.6fr;
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-
-    .glass-panel {
+    /* TOP TRIGGER SECTION (Directly above orders) */
+    .top-trigger-panel {
       background: var(--panel-bg);
       border: 1px solid var(--glass-border);
       border-radius: 18px;
-      padding: 20px;
-      backdrop-filter: blur(8px);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .panel-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 14px;
+    .trigger-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .trigger-info h2 {
+      font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      color: var(--text-muted);
     }
 
-    .btn-point1 {
-      width: 100%;
-      padding: 18px;
+    .trigger-stats {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .trigger-stats strong {
+      color: var(--text);
+    }
+
+    .btn-top-trigger {
+      padding: 14px 28px;
       background: linear-gradient(135deg, #0284c7, #2563eb);
       color: white;
       border: none;
       border-radius: 14px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.5);
       transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
     }
 
-    .btn-point1:hover {
+    .btn-top-trigger:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 28px -5px rgba(37, 99, 235, 0.5);
+      box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.6);
     }
 
-    .btn-point1:active {
+    .btn-top-trigger:active {
       transform: scale(0.98);
     }
 
-    .stat-list {
-      margin-top: 16px;
-      font-size: 13px;
+    /* TABLE SECTION */
+    .orders-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .orders-header-row {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .orders-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       color: var(--text-muted);
     }
 
-    .stat-list strong {
-      color: var(--text);
+    .order-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* Table styling matching 1C layout */
+    .num-input {
+      width: 52px;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 4px 6px;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .btn-small {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
     .table-wrapper {
       border-radius: 12px;
-      overflow: hidden;
+      overflow-y: auto;
+      max-height: 420px;
       border: 1px solid var(--glass-border);
       background: #ffffff;
       color: #1e293b;
@@ -200,10 +230,13 @@
       border-right: 1px solid #fde047;
       text-align: left;
       font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
 
     td {
-      padding: 10px 12px;
+      padding: 8px 12px;
       border-bottom: 1px solid #f1f5f9;
       border-right: 1px solid #f1f5f9;
     }
@@ -211,7 +244,7 @@
     tr.interactive-row {
       cursor: pointer;
       font-weight: 500;
-      transition: background 0.15s ease;
+      transition: background 0.1s ease;
     }
 
     tr.interactive-row.pink {
@@ -229,19 +262,29 @@
       color: #14532d;
     }
 
+    .distance-badge {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.08);
+      color: #475569;
+      font-family: monospace;
+    }
+
     .toolbar-actions {
       display: flex;
-      gap: 12px;
-      margin-top: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .pill-btn {
       background: var(--panel-bg);
       border: 1px solid var(--glass-border);
       color: var(--text);
-      padding: 9px 16px;
+      padding: 8px 14px;
       border-radius: 9999px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
       backdrop-filter: blur(8px);
@@ -252,19 +295,19 @@
     }
 
     .console-card {
-      margin-top: 20px;
+      margin-top: 14px;
       background: rgba(10, 14, 26, 0.7);
       border: 1px solid var(--glass-border);
       border-radius: 14px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12.5px;
-      max-height: 140px;
+      font-size: 12px;
+      max-height: 120px;
       overflow-y: auto;
     }
 
     .log-item {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .log-p1 { color: #38bdf8; }
     .log-p2-select { color: #f472b6; }
@@ -275,94 +318,92 @@
 
 <div class="glass-container">
   <div class="header-bar">
-    <div class="title-group">
-      <h1>✨ Dark-Clicker Test Bench</h1>
-    </div>
+    <h1>✨ Dark-Clicker Test Bench</h1>
     <button class="theme-toggle-btn" onclick="toggleTheme()" id="btnTheme">
       ☀️ Light Theme
     </button>
   </div>
 
-  <div class="instructions-card">
-    <strong>Glassmorphism Test Guide:</strong><br>
-    • <strong>Point 1:</strong> Aim at the rounded <strong>"⚡ Trigger (Point 1)"</strong> button.<br>
-    • <strong>Point 2:</strong> Aim at the pink table row below. Point 2 will double-click it upon pink / blue detection.<br>
-    • <strong>Theme Switcher:</strong> Test with both <strong>Dark</strong> and <strong>Light</strong> themes to verify color matching stability!
+  <!-- POINT 1 TRIGGER AT TOP (Above all orders) -->
+  <div class="top-trigger-panel">
+    <div class="trigger-info">
+      <h2>Point 1: Trigger & Reload</h2>
+      <div class="trigger-stats">
+        Trigger Clicks: <strong id="p1Count">0</strong> &nbsp;|&nbsp;
+        Last Click: <strong id="p1Time">Never</strong>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+        💡 Clicking Point 1 reloads the orders list: <strong>all completed (green) orders are removed</strong> and replaced with new pink orders!
+      </div>
+    </div>
+    <button id="btnP1" class="btn-top-trigger">
+      🔄 Trigger & Reload (Point 1)
+    </button>
   </div>
 
-  <div class="grid-panels">
-    <!-- Point 1 -->
-    <div class="glass-panel">
-      <div class="panel-title">1. Trigger Target</div>
-      <button id="btnP1" class="btn-point1">⚡ Trigger (Point 1)</button>
-      <div class="stat-list">
-        <div>Clicks Received: <strong id="p1Count">0</strong></div>
-        <div>Last Event: <strong id="p1Time">None</strong></div>
+  <!-- POINT 2 ORDERS TABLE -->
+  <div class="orders-panel">
+    <div class="orders-header-row">
+      <div class="orders-title">Point 2 Area: Orders List (Distance to Point 1 increases downwards)</div>
+      <div class="order-controls">
+        <label style="font-size:12px; color:var(--text-muted); font-weight:600;">Display N:</label>
+        <input type="number" id="orderCountInput" class="num-input" value="6" min="1" max="25" />
+        <button class="btn-small" onclick="applyOrderCount()">Apply</button>
       </div>
     </div>
 
-    <!-- Point 2 -->
-    <div class="glass-panel">
-      <div class="panel-title">2. Order Table (Point 2)</div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Вид операции</th>
-              <th>Дата</th>
-              <th>Номер</th>
-              <th>Статус</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr id="testRow" class="interactive-row pink">
-              <td>заказ</td>
-              <td id="orderTime">22.10.2026 20:00:00</td>
-              <td id="orderCode">000008540_</td>
-              <td id="orderStatus">Новый (#FFB6C1)</td>
-            </tr>
-            <tr style="background:#fff; color:#94a3b8;">
-              <td>заказ</td>
-              <td>22.10.2026 19:45:00</td>
-              <td>000008539_</td>
-              <td>Завершен</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="table-wrapper" id="tableWrapper">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50px;">Order #</th>
+            <th>Вид операции</th>
+            <th>Дата</th>
+            <th>Номер</th>
+            <th>Статус</th>
+            <th style="width: 140px;">Distance to P1</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+          <!-- Dynamically populated rows -->
+        </tbody>
+      </table>
+    </div>
 
-      <div class="stat-list" style="margin-top:14px;">
-        <div>State: <strong id="rowStateLabel" style="color:var(--pink-order);">Pink (Unselected)</strong></div>
-        <div>Double-clicks Processed: <strong id="dblCount">0</strong></div>
-      </div>
+    <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:13px; color:var(--text-muted);">
+      <div>Pending: <strong id="pendingCount" style="color:#e2e8f0;">0</strong></div>
+      <div>Selected: <strong id="selectedCount" style="color:#e2e8f0;">0</strong></div>
+      <div>Processed: <strong id="doneCount" style="color:#e2e8f0;">0</strong></div>
     </div>
   </div>
 
   <div class="toolbar-actions">
-    <button class="pill-btn" onclick="resetToPink()">🔄 Reset Row to Pink</button>
-    <button class="pill-btn" onclick="toggleAutoReset()">⚡ Auto New Order: <span id="autoResetStatus">ON</span></button>
+    <button class="pill-btn" onclick="reloadOrders(true)">🔄 Force Full Reload</button>
+    <button class="pill-btn" onclick="setPreset(4)">Preset: 4 Orders</button>
+    <button class="pill-btn" onclick="setPreset(6)">Preset: 6 Orders</button>
+    <button class="pill-btn" onclick="setPreset(10)">Preset: 10 Orders</button>
     <button class="pill-btn" onclick="clearConsole()">🧹 Clear Log</button>
   </div>
 
   <div class="console-card" id="consoleBox">
-    <div class="log-item" style="color: #94a3b8;">[Ready] Test bench initialized. Waiting for trigger clicks...</div>
+    <div class="log-item" style="color: #94a3b8;">[Ready] Test bench initialized. Trigger button is situated at the top.</div>
   </div>
 </div>
 
 <script>
   let p1Total = 0;
-  let dblTotal = 0;
-  let autoReset = true;
-  let resetTimer = null;
+  let orderCount = 6;
+  let orderIdCounter = 100;
 
   const btnP1 = document.getElementById('btnP1');
   const p1Count = document.getElementById('p1Count');
   const p1Time = document.getElementById('p1Time');
+  const ordersTableBody = document.getElementById('ordersTableBody');
+  const orderCountInput = document.getElementById('orderCountInput');
 
-  const testRow = document.getElementById('testRow');
-  const orderStatus = document.getElementById('orderStatus');
-  const rowStateLabel = document.getElementById('rowStateLabel');
-  const dblCount = document.getElementById('dblCount');
+  const pendingCount = document.getElementById('pendingCount');
+  const selectedCount = document.getElementById('selectedCount');
+  const doneCount = document.getElementById('doneCount');
   const consoleBox = document.getElementById('consoleBox');
 
   function addLog(text, cls) {
@@ -374,58 +415,133 @@
     consoleBox.scrollTop = consoleBox.scrollHeight;
   }
 
-  // Point 1 Click
+  // Create a new pink row
+  function createRowElement(rankIndex) {
+    orderIdCounter++;
+    const tr = document.createElement('tr');
+    tr.className = 'interactive-row pink';
+    tr.id = `orderRow_${orderIdCounter}`;
+
+    const code = '0000085' + String(orderIdCounter % 1000).padStart(3, '0') + '_';
+    const time = '23.10.2026 20:' + String(rankIndex * 4 % 60).padStart(2, '0') + ':00';
+
+    tr.innerHTML = `
+      <td style="font-weight:bold; color:#64748b;">${rankIndex}</td>
+      <td>заказ</td>
+      <td>${time}</td>
+      <td>${code}</td>
+      <td class="status-cell">Новый (#FFB6C1)</td>
+      <td><span class="distance-badge">Nearest #${rankIndex}</span></td>
+    `;
+
+    // Click: If Pink -> Blue. If Blue -> Green (Done on follow-up).
+    tr.addEventListener('click', function(e) {
+      if (tr.classList.contains('pink')) {
+        tr.classList.remove('pink');
+        tr.classList.add('blue');
+        tr.querySelector('.status-cell').innerText = 'Выбран (#A5C8EE)';
+        updateCounts();
+        addLog(`Nearest #${rankIndex} clicked -> Selected Blue (#A5C8EE)`, 'log-p2-select');
+      } else if (tr.classList.contains('blue')) {
+        tr.classList.remove('blue');
+        tr.classList.add('done');
+        tr.querySelector('.status-cell').innerText = 'ОТКРЫТ (Processed)';
+        updateCounts();
+        addLog(`Nearest #${rankIndex} follow-up click -> Processed (Green)!`, 'log-p2-done');
+      }
+    });
+
+    // Double Click: immediately marks as Done (Green)
+    tr.addEventListener('dblclick', function(e) {
+      if (!tr.classList.contains('done')) {
+        tr.classList.remove('pink', 'blue');
+        tr.classList.add('done');
+        tr.querySelector('.status-cell').innerText = 'ОТКРЫТ (Processed)';
+        updateCounts();
+        addLog(`Nearest #${rankIndex} DOUBLE CLICKED -> Processed (Green)!`, 'log-p2-done');
+      }
+    });
+
+    return tr;
+  }
+
+  // Reload orders: remove any completed green orders, replace with fresh pink orders
+  function reloadOrders(forceAll = false) {
+    if (forceAll) {
+      ordersTableBody.innerHTML = '';
+      for (let i = 1; i <= orderCount; i++) {
+        ordersTableBody.appendChild(createRowElement(i));
+      }
+    } else {
+      // Find all rows that are done (green) and replace them with fresh pink orders
+      const doneRows = ordersTableBody.querySelectorAll('tr.done');
+      if (doneRows.length > 0) {
+        addLog(`Trigger Reload: Removing ${doneRows.length} completed (green) order(s) and adding new orders...`, 'log-p1');
+        doneRows.forEach(row => {
+          row.remove();
+        });
+        
+        // Re-fill up to orderCount
+        const currentCount = ordersTableBody.querySelectorAll('tr').length;
+        for (let i = currentCount + 1; i <= orderCount; i++) {
+          ordersTableBody.appendChild(createRowElement(i));
+        }
+      } else {
+        // If no green orders, just ensure count matches
+        const currentCount = ordersTableBody.querySelectorAll('tr').length;
+        if (currentCount < orderCount) {
+          for (let i = currentCount + 1; i <= orderCount; i++) {
+            ordersTableBody.appendChild(createRowElement(i));
+          }
+        }
+      }
+      
+      // Update ranks/badges based on vertical order
+      const allRows = ordersTableBody.querySelectorAll('tr');
+      allRows.forEach((row, idx) => {
+        row.querySelector('td').innerText = idx + 1;
+        const badge = row.querySelector('.distance-badge');
+        if (badge) badge.innerText = `Nearest #${idx + 1}`;
+      });
+    }
+    updateCounts();
+  }
+
+  function updateCounts() {
+    const rows = ordersTableBody.querySelectorAll('tr');
+    let pink = 0, blue = 0, done = 0;
+    rows.forEach(r => {
+      if (r.classList.contains('pink')) pink++;
+      else if (r.classList.contains('blue')) blue++;
+      else if (r.classList.contains('done')) done++;
+    });
+    pendingCount.innerText = pink;
+    selectedCount.innerText = blue;
+    doneCount.innerText = done;
+  }
+
+  // Point 1 Click: Reloads orders and removes green orders
   btnP1.addEventListener('click', () => {
     p1Total++;
     p1Count.innerText = p1Total;
     p1Time.innerText = new Date().toLocaleTimeString();
-    addLog(`Point 1 clicked [Total: ${p1Total}]`, 'log-p1');
+    addLog(`Point 1 clicked -> Orders Reloaded (Green removed)`, 'log-p1');
+    reloadOrders(false);
   });
 
-  // Point 2 Single Click: Turns Blue
-  testRow.addEventListener('click', () => {
-    if (testRow.classList.contains('pink')) {
-      testRow.classList.remove('pink');
-      testRow.classList.add('blue');
-      orderStatus.innerText = 'Выбран (#A5C8EE)';
-      rowStateLabel.innerText = 'Blue (Selected)';
-      rowStateLabel.style.color = 'var(--blue-selected)';
-      addLog('Point 2 Click: Turned Blue (#A5C8EE)', 'log-p2-select');
-    }
-  });
-
-  // Point 2 Double Click: Turns Green
-  testRow.addEventListener('dblclick', () => {
-    dblTotal++;
-    dblCount.innerText = dblTotal;
-    testRow.classList.remove('pink', 'blue');
-    testRow.classList.add('done');
-    orderStatus.innerText = 'ОТКРЫТ (Processed)';
-    rowStateLabel.innerText = 'Done (Double-clicked!)';
-    rowStateLabel.style.color = 'var(--green-done)';
-    addLog(`Point 2 DOUBLE CLICK: Order Processed! [Total: ${dblTotal}]`, 'log-p2-done');
-
-    if (autoReset) {
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => {
-        resetToPink();
-      }, 1500);
-    }
-  });
-
-  function resetToPink() {
-    testRow.classList.remove('blue', 'done');
-    testRow.classList.add('pink');
-    orderStatus.innerText = 'Новый (#FFB6C1)';
-    rowStateLabel.innerText = 'Pink (Unselected)';
-    rowStateLabel.style.color = 'var(--pink-order)';
-    document.getElementById('orderCode').innerText = '0000085' + Math.floor(40 + Math.random() * 50) + '_';
-    addLog('New Pink Order arrived (#FFB6C1)', 'log-p2-select');
+  function applyOrderCount() {
+    const val = parseInt(orderCountInput.value) || 6;
+    orderCount = Math.max(1, Math.min(val, 25));
+    orderCountInput.value = orderCount;
+    reloadOrders(true);
+    addLog(`Table reloaded with ${orderCount} orders`);
   }
 
-  function toggleAutoReset() {
-    autoReset = !autoReset;
-    document.getElementById('autoResetStatus').innerText = autoReset ? 'ON' : 'OFF';
+  function setPreset(n) {
+    orderCount = n;
+    orderCountInput.value = n;
+    reloadOrders(true);
+    addLog(`Preset selected: ${n} Orders`);
   }
 
   function clearConsole() {
@@ -443,6 +559,9 @@
       document.getElementById('btnTheme').innerText = '☀️ Light Theme';
     }
   }
+
+  // Initialize
+  reloadOrders(true);
 </script>
 
 </body>

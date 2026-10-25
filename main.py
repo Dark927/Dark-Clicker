@@ -1,10 +1,103 @@
 import customtkinter as ctk
 import pyautogui
 import time
+import ctypes
+import tkinter as tk
 from PIL import ImageGrab
 from pynput import keyboard, mouse
 from logic import ClickerCore
 from sounds import play_success_sound
+
+# Ensure High-DPI awareness on Windows before creating any Tkinter windows
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+class SnippingOverlay:
+    """
+    Transparent fullscreen overlay that allows the user to click & drag
+    to select a rectangular region on screen.
+    """
+    def __init__(self, parent, on_selection_complete):
+        self.parent = parent
+        self.on_selection_complete = on_selection_complete
+        
+        self.overlay = tk.Toplevel(parent)
+        self.overlay.attributes('-alpha', 0.28)
+        self.overlay.attributes('-fullscreen', True)
+        self.overlay.attributes('-topmost', True)
+        self.overlay.config(cursor='cross')
+        self.overlay.overrideredirect(True)
+
+        self.canvas = tk.Canvas(self.overlay, cursor='cross', bg='grey15', highlightthickness=0)
+        self.canvas.pack(fill='both', expand=True)
+
+        self.start_x = None
+        self.start_y = None
+        self.rect_id = None
+        self.text_id = None
+
+        # Bindings
+        self.canvas.bind('<ButtonPress-1>', self.on_press)
+        self.canvas.bind('<B1-Motion>', self.on_drag)
+        self.canvas.bind('<ButtonRelease-1>', self.on_release)
+        self.overlay.bind('<Escape>', lambda e: self.cancel())
+
+        # Hint text
+        w = self.overlay.winfo_screenwidth()
+        self.canvas.create_text(
+            w // 2, 60,
+            text="Drag mouse to select Area for Point 2 | Press ESC to cancel",
+            fill="white",
+            font=("Segoe UI", 16, "bold")
+        )
+
+    def on_press(self, event):
+        self.start_x = event.x
+        self.start_y = event.y
+        self.rect_id = self.canvas.create_rectangle(
+            self.start_x, self.start_y, self.start_x, self.start_y,
+            outline="#38BDF8", width=2, fill="#0284C7"
+        )
+        self.text_id = self.canvas.create_text(
+            self.start_x, max(20, self.start_y - 15),
+            text="0 x 0", fill="#FFFFFF", font=("Segoe UI", 11, "bold"), anchor="w"
+        )
+
+    def on_drag(self, event):
+        cur_x, cur_y = event.x, event.y
+        if self.rect_id:
+            self.canvas.coords(self.rect_id, self.start_x, self.start_y, cur_x, cur_y)
+            width = abs(cur_x - self.start_x)
+            height = abs(cur_y - self.start_y)
+            top_y = min(self.start_y, cur_y)
+            left_x = min(self.start_x, cur_x)
+            self.canvas.coords(self.text_id, left_x, max(20, top_y - 12))
+            self.canvas.itemconfig(self.text_id, text=f"{width} x {height} px")
+
+    def on_release(self, event):
+        end_x, end_y = event.x, event.y
+        x1 = min(self.start_x, end_x)
+        y1 = min(self.start_y, end_y)
+        x2 = max(self.start_x, end_x)
+        y2 = max(self.start_y, end_y)
+
+        self.overlay.destroy()
+
+        # If selection has meaningful size (> 5x5 px)
+        if (x2 - x1) >= 5 and (y2 - y1) >= 5:
+            self.on_selection_complete((x1, y1, x2, y2))
+        else:
+            # Treated as single click
+            self.on_selection_complete((end_x, end_y))
+
+    def cancel(self):
+        self.overlay.destroy()
+
 
 class ModernClickerApp(ctk.CTk):
     def __init__(self):
@@ -12,7 +105,7 @@ class ModernClickerApp(ctk.CTk):
         
         # Window Configuration
         self.title("Smart Dual Clicker Pro")
-        self.geometry("440x670")
+        self.geometry("450x750")
         self.attributes('-topmost', True)
         self.resizable(False, False)
         
@@ -23,7 +116,7 @@ class ModernClickerApp(ctk.CTk):
         
         self.core = ClickerCore()
         self.p1 = None
-        self.p2 = None
+        self.p2 = None  # (x, y) or (x1, y1, x2, y2)
 
         # Hotkey state
         self.stop_hotkey = keyboard.Key.esc
@@ -59,7 +152,7 @@ class ModernClickerApp(ctk.CTk):
                 self.after(0, self.stop)
 
     def _build_ui(self):
-        # Outer Card with subtle glassmorphic styling
+        # Outer Card with glassmorphic styling
         self.main_card = ctk.CTkFrame(
             self,
             corner_radius=20,
@@ -119,8 +212,8 @@ class ModernClickerApp(ctk.CTk):
 
         self.btn_p1 = ctk.CTkButton(
             coord_card,
-            text="🎯 Set Point 1 (Trigger)",
-            height=36,
+            text="🎯 Set Point 1 (Trigger - Hover 3s)",
+            height=34,
             corner_radius=12,
             font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
             fg_color=("#2563EB", "#3B82F6"),
@@ -129,17 +222,33 @@ class ModernClickerApp(ctk.CTk):
         )
         self.btn_p1.pack(fill="x", padx=12, pady=(10, 6))
 
+        # Point 2 Selection row with 2 options: Single Point OR Select Area
+        f_p2_buttons = ctk.CTkFrame(coord_card, fg_color="transparent")
+        f_p2_buttons.pack(fill="x", padx=12, pady=(0, 6))
+
         self.btn_p2 = ctk.CTkButton(
-            coord_card,
-            text="🎯 Set Point 2 (Action)",
-            height=36,
+            f_p2_buttons,
+            text="🎯 Set Point 2",
+            height=34,
             corner_radius=12,
             font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
             fg_color=("#2563EB", "#3B82F6"),
             hover_color=("#1D4ED8", "#2563EB"),
             command=lambda: self.grab_point(2)
         )
-        self.btn_p2.pack(fill="x", padx=12, pady=(0, 6))
+        self.btn_p2.pack(side="left", fill="x", expand=True, padx=(0, 6))
+
+        self.btn_p2_area = ctk.CTkButton(
+            f_p2_buttons,
+            text="📐 Select Area",
+            height=34,
+            corner_radius=12,
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            fg_color=("#0D9488", "#14B8A6"),
+            hover_color=("#0F766E", "#0D9488"),
+            command=self.start_area_selection
+        )
+        self.btn_p2_area.pack(side="right", fill="x", expand=True)
 
         self.chk_double_click = ctk.CTkCheckBox(
             coord_card,
@@ -236,18 +345,48 @@ class ModernClickerApp(ctk.CTk):
         self.entry_color2.pack(side="right", fill="x", expand=True)
         self.entry_color2.bind("<KeyRelease>", lambda e: self.update_preview_from_entry(2))
 
-        # --- Section 3: Rate Control ---
-        rate_frame = ctk.CTkFrame(
+        # --- Section 3: Batch Limits & Rate Control ---
+        config_frame = ctk.CTkFrame(
             self.main_card,
             corner_radius=14,
             fg_color=("#FFFFFF", "#1E2230"),
             border_width=1,
             border_color=("#E2E8F0", "#2D3748")
         )
-        rate_frame.pack(fill="x", padx=16, pady=4)
+        config_frame.pack(fill="x", padx=16, pady=4)
 
-        f_rate_inner = ctk.CTkFrame(rate_frame, fg_color="transparent")
-        f_rate_inner.pack(fill="x", padx=12, pady=8)
+        # Batch limit row
+        f_batch_inner = ctk.CTkFrame(config_frame, fg_color="transparent")
+        f_batch_inner.pack(fill="x", padx=12, pady=(8, 4))
+
+        lbl_batch = ctk.CTkLabel(
+            f_batch_inner,
+            text="🎯 Max Orders / Batch:",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold")
+        )
+        lbl_batch.pack(side="left")
+
+        lbl_batch_hint = ctk.CTkLabel(
+            f_batch_inner,
+            text="(0 = All nearest)",
+            font=ctk.CTkFont(family="Segoe UI", size=11),
+            text_color="#9CA3AF"
+        )
+        lbl_batch_hint.pack(side="left", padx=(4, 0))
+
+        self.entry_batch = ctk.CTkEntry(
+            f_batch_inner,
+            width=70,
+            height=28,
+            corner_radius=8,
+            font=ctk.CTkFont(family="Consolas", size=13)
+        )
+        self.entry_batch.insert(0, "0")
+        self.entry_batch.pack(side="right")
+
+        # Interval Rate row
+        f_rate_inner = ctk.CTkFrame(config_frame, fg_color="transparent")
+        f_rate_inner.pack(fill="x", padx=12, pady=(4, 8))
 
         lbl_rate = ctk.CTkLabel(
             f_rate_inner,
@@ -265,12 +404,12 @@ class ModernClickerApp(ctk.CTk):
 
         self.entry_rate = ctk.CTkEntry(
             f_rate_inner,
-            width=80,
-            height=30,
+            width=70,
+            height=28,
             corner_radius=8,
             font=ctk.CTkFont(family="Consolas", size=13)
         )
-        self.entry_rate.insert(0, "30")
+        self.entry_rate.insert(0, "0")
         self.entry_rate.pack(side="right")
 
         # --- Section 4: Action Buttons (START / STOP) ---
@@ -335,8 +474,30 @@ class ModernClickerApp(ctk.CTk):
         else:
             self.p2 = (x, y)
             self.btn_p2.configure(text=f"Point 2: {x}, {y}", fg_color="#10B981")
+            self.btn_p2_area.configure(text="📐 Select Area", fg_color=("#0D9488", "#14B8A6"))
             
         self.lbl_status.configure(text="Point captured!", text_color="#10B981")
+
+    def start_area_selection(self):
+        self.lbl_status.configure(text="Drag cursor on screen to select Area for Point 2...", text_color="#F59E0B")
+        SnippingOverlay(self, self._on_area_selected)
+
+    def _on_area_selected(self, coords):
+        play_success_sound()
+        if len(coords) == 4:
+            x1, y1, x2, y2 = coords
+            self.p2 = (x1, y1, x2, y2)
+            w = x2 - x1
+            h = y2 - y1
+            self.btn_p2_area.configure(text=f"Area: {w}x{h} px", fg_color="#10B981")
+            self.btn_p2.configure(text="Point 2: [Area Selected]", fg_color="#10B981")
+            self.lbl_status.configure(text=f"Point 2 Area set: ({x1},{y1}) to ({x2},{y2}) [{w}x{h}]", text_color="#10B981")
+        else:
+            x, y = coords
+            self.p2 = (x, y)
+            self.btn_p2.configure(text=f"Point 2: {x}, {y}", fg_color="#10B981")
+            self.btn_p2_area.configure(text="📐 Select Area", fg_color=("#0D9488", "#14B8A6"))
+            self.lbl_status.configure(text=f"Point 2 set: {x}, {y}", text_color="#10B981")
 
     def start_color_pick(self, target_num=1):
         target_name = f"Color {target_num}"
@@ -383,7 +544,7 @@ class ModernClickerApp(ctk.CTk):
 
     def start(self):
         if not self.p1 or not self.p2:
-            self.lbl_status.configure(text="Error: Set both points first!", text_color="#EF4444")
+            self.lbl_status.configure(text="Error: Set both points/areas first!", text_color="#EF4444")
             return
             
         try:
@@ -391,6 +552,11 @@ class ModernClickerApp(ctk.CTk):
         except ValueError:
             self.lbl_status.configure(text="Error: Invalid rate number!", text_color="#EF4444")
             return
+
+        try:
+            batch_limit = int(self.entry_batch.get())
+        except ValueError:
+            batch_limit = 0
 
         color1 = self.entry_color1.get().strip()
         color2 = self.entry_color2.get().strip()
@@ -408,6 +574,7 @@ class ModernClickerApp(ctk.CTk):
             hex_color2=color2,
             use_color2=use_color2,
             double_click=double_click,
+            max_batch_orders=batch_limit,
             rate=rate,
             tolerance=20
         )

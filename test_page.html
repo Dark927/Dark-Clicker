@@ -382,6 +382,7 @@
     <button class="pill-btn" onclick="setPreset(4)">Preset: 4 Orders</button>
     <button class="pill-btn" onclick="setPreset(6)">Preset: 6 Orders</button>
     <button class="pill-btn" onclick="setPreset(10)">Preset: 10 Orders</button>
+    <button class="pill-btn" onclick="toggleSimulatedLag()" id="btnLag">⏱️ Simulate Lag on Blue: OFF</button>
     <button class="pill-btn" onclick="clearConsole()">🧹 Clear Log</button>
   </div>
 
@@ -394,6 +395,7 @@
   let p1Total = 0;
   let orderCount = 6;
   let orderIdCounter = 100;
+  let simulateLag = false;
 
   const btnP1 = document.getElementById('btnP1');
   const p1Count = document.getElementById('p1Count');
@@ -406,8 +408,25 @@
   const doneCount = document.getElementById('doneCount');
   const consoleBox = document.getElementById('consoleBox');
 
+  function toggleSimulatedLag() {
+    simulateLag = !simulateLag;
+    const btn = document.getElementById('btnLag');
+    if (simulateLag) {
+      btn.innerText = '⏱️ Simulate Lag on Blue: ON';
+      btn.style.borderColor = '#38bdf8';
+      btn.style.color = '#38bdf8';
+      addLog('Simulated Lag enabled: 1st click on Blue row keeps it Blue (tests re-clicking logic), 2nd click finishes to Green.');
+    } else {
+      btn.innerText = '⏱️ Simulate Lag on Blue: OFF';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      addLog('Simulated Lag disabled: 1 click on Blue row finishes immediately.');
+    }
+  }
+
   function addLog(text, cls) {
-    const t = new Date().toLocaleTimeString();
+    const now = new Date();
+    const t = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
     const item = document.createElement('div');
     item.className = 'log-item ' + (cls || '');
     item.innerText = `[${t}] ${text}`;
@@ -421,6 +440,7 @@
     const tr = document.createElement('tr');
     tr.className = 'interactive-row pink';
     tr.id = `orderRow_${orderIdCounter}`;
+    tr.dataset.blueClicks = '0';
 
     const code = '0000085' + String(orderIdCounter % 1000).padStart(3, '0') + '_';
     const time = '23.10.2026 20:' + String(rankIndex * 4 % 60).padStart(2, '0') + ':00';
@@ -439,15 +459,24 @@
       if (tr.classList.contains('pink')) {
         tr.classList.remove('pink');
         tr.classList.add('blue');
+        tr.dataset.blueClicks = '0';
         tr.querySelector('.status-cell').innerText = 'Выбран (#A5C8EE)';
         updateCounts();
         addLog(`Nearest #${rankIndex} clicked -> Selected Blue (#A5C8EE)`, 'log-p2-select');
       } else if (tr.classList.contains('blue')) {
+        let bClicks = parseInt(tr.dataset.blueClicks || '0') + 1;
+        tr.dataset.blueClicks = bClicks.toString();
+        
+        if (simulateLag && bClicks < 2) {
+          addLog(`Nearest #${rankIndex} Blue clicked (Lag simulation: Click ${bClicks}/2, still Blue) -> awaiting retry click!`, 'log-p2-select');
+          return;
+        }
+
         tr.classList.remove('blue');
         tr.classList.add('done');
         tr.querySelector('.status-cell').innerText = 'ОТКРЫТ (Processed)';
         updateCounts();
-        addLog(`Nearest #${rankIndex} follow-up click -> Processed (Green)!`, 'log-p2-done');
+        addLog(`Nearest #${rankIndex} follow-up click -> Processed (Green)! Color 2 disappeared.`, 'log-p2-done');
       }
     });
 

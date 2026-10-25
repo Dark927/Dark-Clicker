@@ -105,7 +105,7 @@ class ModernClickerApp(ctk.CTk):
         
         # Window Configuration
         self.title("Smart Dual Clicker Pro")
-        self.geometry("450x750")
+        self.geometry("450x820")
         self.attributes('-topmost', True)
         self.resizable(False, False)
         
@@ -115,6 +115,7 @@ class ModernClickerApp(ctk.CTk):
         ctk.set_default_color_theme("blue")
         
         self.core = ClickerCore()
+        self.core.on_stop = self._on_core_stopped
         self.p1 = None
         self.p2 = None  # (x, y) or (x1, y1, x2, y2)
 
@@ -150,6 +151,17 @@ class ModernClickerApp(ctk.CTk):
         if key == self.stop_hotkey:
             if self.core.is_running:
                 self.after(0, self.stop)
+
+    def _on_core_stopped(self, reason=None):
+        def update():
+            self.btn_start.configure(state="normal")
+            self.btn_stop.configure(state="disabled")
+            if reason:
+                self.lbl_status.configure(text=f"● STOPPED: {reason}", text_color="#10B981")
+                play_success_sound()
+            else:
+                self.lbl_status.configure(text="Status: Ready", text_color="#9CA3AF")
+        self.after(0, update)
 
     def _build_ui(self):
         # Outer Card with glassmorphic styling
@@ -304,7 +316,7 @@ class ModernClickerApp(ctk.CTk):
 
         # Eyedropper 2
         f_c2 = ctk.CTkFrame(color_card, fg_color="transparent")
-        f_c2.pack(fill="x", padx=12, pady=(0, 10))
+        f_c2.pack(fill="x", padx=12, pady=(0, 6))
 
         self.chk_color2 = ctk.CTkCheckBox(
             f_c2,
@@ -344,6 +356,46 @@ class ModernClickerApp(ctk.CTk):
         self.entry_color2.insert(0, "#A5C8EE")
         self.entry_color2.pack(side="right", fill="x", expand=True)
         self.entry_color2.bind("<KeyRelease>", lambda e: self.update_preview_from_entry(2))
+
+        # Color 2 auto-stop row
+        f_c2_stop = ctk.CTkFrame(color_card, fg_color="transparent")
+        f_c2_stop.pack(fill="x", padx=12, pady=(0, 10))
+
+        self.chk_stop_color2 = ctk.CTkCheckBox(
+            f_c2_stop,
+            text="🛑 Stop on Color 2 disappear",
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            corner_radius=6,
+            checkbox_width=18,
+            checkbox_height=18,
+            command=self.toggle_stop_color2
+        )
+        self.chk_stop_color2.pack(side="left")
+
+        self.lbl_c2_ms = ctk.CTkLabel(
+            f_c2_stop,
+            text="ms",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold")
+        )
+        self.lbl_c2_ms.pack(side="right", padx=(4, 0))
+
+        self.entry_color2_wait = ctk.CTkEntry(
+            f_c2_stop,
+            width=50,
+            height=26,
+            corner_radius=6,
+            font=ctk.CTkFont(family="Consolas", size=12)
+        )
+        self.entry_color2_wait.insert(0, "300")
+        self.entry_color2_wait.pack(side="right")
+        self.entry_color2_wait.configure(state="disabled")
+
+        self.lbl_c2_wait = ctk.CTkLabel(
+            f_c2_stop,
+            text="Wait:",
+            font=ctk.CTkFont(family="Segoe UI", size=11)
+        )
+        self.lbl_c2_wait.pack(side="right", padx=(0, 4))
 
         # --- Section 3: Batch Limits & Rate Control ---
         config_frame = ctk.CTkFrame(
@@ -386,7 +438,7 @@ class ModernClickerApp(ctk.CTk):
 
         # Interval Rate row
         f_rate_inner = ctk.CTkFrame(config_frame, fg_color="transparent")
-        f_rate_inner.pack(fill="x", padx=12, pady=(4, 8))
+        f_rate_inner.pack(fill="x", padx=12, pady=(4, 4))
 
         lbl_rate = ctk.CTkLabel(
             f_rate_inner,
@@ -411,6 +463,57 @@ class ModernClickerApp(ctk.CTk):
         )
         self.entry_rate.insert(0, "0")
         self.entry_rate.pack(side="right")
+
+        # Random Delay row
+        f_rand_inner = ctk.CTkFrame(config_frame, fg_color="transparent")
+        f_rand_inner.pack(fill="x", padx=12, pady=(4, 8))
+
+        self.chk_random_delay = ctk.CTkCheckBox(
+            f_rand_inner,
+            text="🎲 Random Delay P2:",
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            corner_radius=6,
+            checkbox_width=18,
+            checkbox_height=18,
+            command=self.toggle_random_delay
+        )
+        self.chk_random_delay.pack(side="left")
+
+        self.lbl_rand_ms = ctk.CTkLabel(
+            f_rand_inner,
+            text="ms",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold")
+        )
+        self.lbl_rand_ms.pack(side="right", padx=(4, 0))
+
+        self.entry_random_max = ctk.CTkEntry(
+            f_rand_inner,
+            width=48,
+            height=26,
+            corner_radius=6,
+            font=ctk.CTkFont(family="Consolas", size=12)
+        )
+        self.entry_random_max.insert(0, "300")
+        self.entry_random_max.pack(side="right")
+        self.entry_random_max.configure(state="disabled")
+
+        self.lbl_rand_dash = ctk.CTkLabel(
+            f_rand_inner,
+            text="-",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold")
+        )
+        self.lbl_rand_dash.pack(side="right", padx=3)
+
+        self.entry_random_min = ctk.CTkEntry(
+            f_rand_inner,
+            width=48,
+            height=26,
+            corner_radius=6,
+            font=ctk.CTkFont(family="Consolas", size=12)
+        )
+        self.entry_random_min.insert(0, "100")
+        self.entry_random_min.pack(side="right")
+        self.entry_random_min.configure(state="disabled")
 
         # --- Section 4: Action Buttons (START / STOP) ---
         actions_frame = ctk.CTkFrame(self.main_card, fg_color="transparent")
@@ -454,6 +557,20 @@ class ModernClickerApp(ctk.CTk):
         state = "normal" if self.chk_color2.get() else "disabled"
         self.btn_color2.configure(state=state)
         self.entry_color2.configure(state=state)
+        self.chk_stop_color2.configure(state=state)
+        if not self.chk_color2.get():
+            self.entry_color2_wait.configure(state="disabled")
+        else:
+            self.entry_color2_wait.configure(state="normal" if self.chk_stop_color2.get() else "disabled")
+
+    def toggle_stop_color2(self):
+        state = "normal" if (self.chk_stop_color2.get() and self.chk_color2.get()) else "disabled"
+        self.entry_color2_wait.configure(state=state)
+
+    def toggle_random_delay(self):
+        state = "normal" if self.chk_random_delay.get() else "disabled"
+        self.entry_random_min.configure(state=state)
+        self.entry_random_max.configure(state=state)
 
     def assign_hotkey(self):
         self.waiting_for_hotkey = True
@@ -563,6 +680,32 @@ class ModernClickerApp(ctk.CTk):
         use_color2 = bool(self.chk_color2.get())
         double_click = bool(self.chk_double_click.get())
 
+        use_random = bool(self.chk_random_delay.get())
+        if use_random:
+            try:
+                rand_min = float(self.entry_random_min.get())
+                rand_max = float(self.entry_random_max.get())
+                if rand_min < 0 or rand_max < 0:
+                    raise ValueError
+            except ValueError:
+                self.lbl_status.configure(text="Error: Invalid random delay numbers!", text_color="#EF4444")
+                return
+        else:
+            rand_min = 0.0
+            rand_max = 0.0
+
+        stop_c2 = bool(self.chk_stop_color2.get() and self.chk_color2.get())
+        if stop_c2:
+            try:
+                c2_wait = float(self.entry_color2_wait.get())
+                if c2_wait < 0:
+                    raise ValueError
+            except ValueError:
+                self.lbl_status.configure(text="Error: Invalid Color 2 wait time!", text_color="#EF4444")
+                return
+        else:
+            c2_wait = 0.0
+
         self.btn_start.configure(state="disabled")
         self.btn_stop.configure(state="normal")
         self.lbl_status.configure(text="● RUNNING", text_color="#10B981")
@@ -576,7 +719,12 @@ class ModernClickerApp(ctk.CTk):
             double_click=double_click,
             max_batch_orders=batch_limit,
             rate=rate,
-            tolerance=20
+            tolerance=20,
+            use_random_delay=use_random,
+            random_min_ms=rand_min,
+            random_max_ms=rand_max,
+            stop_on_color2=stop_c2,
+            color2_wait_ms=c2_wait
         )
 
     def stop(self):

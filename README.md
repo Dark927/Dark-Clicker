@@ -8,6 +8,8 @@ Smart Dual Clicker is a lightweight, cross-platform automation tool built with P
 
 ## Features
 * **Conditional Logic:** Executes a primary trigger click, evaluates the pixel color at Point 2, and executes a secondary click/double-click when matching either target color.
+* **Random Delay Window for Point 2:** Configurable randomized delay window (`[Min, Max]` in ms) before clicking on Point 2 (supports both Single Point and Area Selection modes). After Point 1 triggers and matching target colors are confirmed, it waits a random duration within the window before clicking Point 2.
+* **Auto-Stop on Color 2 Disappearance & Retry:** When Color 2 is enabled, configure a wait time and enable auto-stop. After clicking Color 2, it waits the designated time. If Color 2 disappears from the clicked point, the clicker automatically halts and announces completion. If Color 2 is still present on the same point, it clicks again and continues waiting until processed.
 * **Batch Limit & Nearest-to-Point-1 Prioritization:** Configure `Max Orders / Batch` (e.g. `1`, `3`, `5`, or `0` for unlimited). When multiple matching orders appear in the area, the clicker calculates the Euclidean distance to Point 1 and prioritizes clicking the **$N$ closest orders** first.
 * **Point 2 Area Selection:** Choose between targeting an exact coordinate or clicking **"📐 Select Area"** to drag-select an entire screen zone (e.g. table rows or list area). When a color match is detected anywhere inside the area, it clicks the exact matched coordinate.
 * **Double-Click Option:** Supports automated double-clicking on Point 2 (configurable with a checkbox, enabled by default) for applications like 1C:Enterprise where opening an item requires a double-click.
@@ -33,7 +35,11 @@ pip install customtkinter pyautogui Pillow pynput
 5. **Target Colors (Dual Eyedroppers):**
    * **Color 1:** Click "Pick Color 1" and click on the screen to sample the primary target color (e.g. pink `#FFB6C1`).
    * **Color 2:** Enable the checkbox for Color 2, click "Pick Color 2", and sample the selected row color (e.g. blue `#A5C8EE`).
-6. **Rate:** Enter the desired interval between click cycles in milliseconds (e.g., 30 for 0.03 seconds).
+   * **Stop on Color 2 Disappear:** Enable "Stop on Color 2 disappear" and enter the wait delay in ms. When active, it clicks Color 2, waits the delay, checks if Color 2 disappeared from the clicked location (stopping if so), and re-clicks if still present.
+6. **Timing & Limits:**
+   * **Max Orders / Batch:** Number of nearest matching orders to process per cycle (0 = all).
+   * **Interval Rate:** Milliseconds to wait before repeating the batch cycle.
+   * **Random Delay P2:** Checkbox with `[Min - Max]` ms range to wait randomly before clicking Point 2 once valid colors are detected.
 7. **Execution:** Press "START". To halt the script, press "STOP" or use your designated global hotkey.
 
 ## Testing
